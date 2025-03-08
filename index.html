@@ -1,204 +1,636 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <title>Idefun的简历</title>
-    <link rel="stylesheet" href="static/css/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remodal/1.1.0/remodal.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remodal/1.1.0/remodal-default-theme.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/remodal/1.1.0/remodal.min.js"></script>
-    <script src="static/js/script.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>个人简历生成器</title>
+<link rel="stylesheet" href="styles.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Roboto:wght@400;500;700&family=Playfair+Display:wght@400;500;700&family=Montserrat:wght@400;500;600;700&family=Lora:wght@400;500;600;700&family=Merriweather:wght@400;700&family=Poppins:wght@400;500;600;700&family=Source+Sans+Pro:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
-
 <body>
-    <div class="container" id="cv">
-        <div class="side">
-            <div class="me">
-                <div class="portrait"></div>
-                <div class="remodal remodal-img" data-remodal-id="portrait-modal">
-                    <h3>请输入图片URL地址：</h3>
-                    <br/>
-                    <input type="text" id="avatar-url">
-                    <button data-remodal-action="confirm" class="remodal-confirm">确定</button>
-                </div>
-                <h1 id="username" >Idefun</h1>
-                <h4 id="persona-tag" >Python / Web / 互联网教育</h4>
-            </div>
-            <div class="profile info-unit">
-                <h2 class="info-header"><i class="iconfont icon-person"></i> <span class="info-title">基本信息</span></h2>
-                <hr>
-                <ul class="info-list">
-                    <li>
-                        <label class="left-label">姓名</label><span class="label-value">浅时光</span></li>
-                    <li>
-                        <label class="left-label">学历</label><span class="label-value">本科</span></li>
-                    <li>
-                        <label class="left-label">毕业院校</label><span class="label-value">未知</span></li>
-                    <li>
-                        <label class="left-label">毕业年份</label><span class="label-value">2019-</span></li>
-                </ul>
-            </div>
-            <div class="contact info-unit">
-                <h2 class="info-header"><i class="iconfont icon-call"></i> <span class="info-title">联系方式</span></h2>
-                <hr>
-                <ul class="info-list">
-                    <li>
-                        <label class="left-label">手机</label><span class="label-value">182XXXXXXXX</span></li>
-                    <li>
-                        <label class="left-label">邮箱</label><span class="label-value">5201314@qq.com.com</span></li>
-                    <li>
-                        <label class="left-label">个人主页</label><span class="label-value">exit-tixe.me</span></li>
-                    <li>
-                        <label class="left-label">Github</label><span class="label-value">github.com/wxpsjhhd</span></li>
-                </ul>
-            </div>
-            <div class="skill info-unit">
-                <h2 class="info-header"><i class="iconfont icon-star"></i> <span class="info-title">技能点</span></h2>
-                <hr>
-                <ul class="progress-list">
-                    <li>
-                        <label class="left-label">Python</label>
-                        <progress value="80" max="100"></progress>
-                    </li>
-                    <li>
-                        <label class="left-label">html/css</label>
-                        <progress value="70" max="100"></progress>
-                    </li>
-                    <li>
-                        <label class="left-label">Javascript</label>
-                        <progress value="60" max="100"></progress>
-                    </li>
-                    <li>
-                        <label class="left-label">机器学习</label>
-                        <progress value="60" max="100"></progress>
-                    </li>
-                </ul>
-            </div>
-            <div class="stack info-unit">
-                <h2 class="info-header"><i class="iconfont icon-build"></i> <span class="info-title">技术栈</span></h2>
-                <hr>
-                <ul class="stack-list">
-                    <li>
-                        <label class="left-label">前端</label><span class="label-value">jQuery、Angular.js、React.js</span></li>
-                    </li>
-                    <li>
-                        <label class="left-label">后端</label><span class="label-value">Flask、Django、Twisted、Node.js、MongoDB、MySQL、Redis</span></li>
-                    </li>
-                    <li>
-                        <label class="left-label">其它</label><span class="label-value">我全都是瞎写的。</span></li>
-                    </li>
-                </ul>
-            </div>
+<div class="container">
+  <div class="header">
+    <h1>个人简历生成器</h1>
+    <div class="header-buttons">
+      <div class="view-toggle-container">
+        <button id="toggle-view-btn" class="button button-outline">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+            <line x1="8" y1="21" x2="16" y2="21"></line>
+            <line x1="12" y1="17" x2="12" y2="21"></line>
+          </svg>
+          <span class="button-text">切换视图</span>
+        </button>
+      </div>
+      <div class="theme-selector">
+        <select id="theme-select" class="theme-select button button-outline">
+          <option value="default">默认主题</option>
+          <option value="modern">现代简约</option>
+          <option value="elegant">优雅专业</option>
+          <option value="creative">创意设计</option>
+          <option value="minimal">极简风格</option>
+          <option value="corporate">企业商务</option>
+          <option value="bold">大胆时尚</option>
+          <option value="classic">经典传统</option>
+          <option value="professional">专业商务</option>
+          <option value="artistic">艺术创意</option>
+          <option value="tech">科技现代</option>
+        </select>
 
-            <div class="code info-unit">
-                <h2 class="info-header"><i class="iconfont icon-weixin"></i> <span class="info-title">二维码</span></h2>
-                <hr>
-                <div class="erweima">
-                    <img src="static/image/erweima.png" alt="">
-
-                </div>
-            </div>
-            <div class="remodal remodal-img" data-remodal-id="weixin-modal">
-                <h3>请输入图片URL地址：</h3>
-                <br/>
-                <input type="text" id="weixin-url">
-                <button data-remodal-action="confirm" class="remodal-confirm">确定</button>
-            </div>
-        </div>
-        <div class="main">
-            <div class="education info-unit right-list">
-                <h2 class="info-header"><i class="iconfont icon-education"></i> <span class="info-title">教育经历</span></h2>
-                <hr>
-                <ul class="experience-list">
-                    <li>
-                        <h3>未知 - 信息安全专业（本科）2019-</h3>
-                        <p>
-                            正在修炼中
-                        </p>
-                    </li>
-                </ul>
-            </div>
-            <div class="work info-unit right-list">
-                <h2 class="info-header"><i class="iconfont icon-work"></i> <span class="info-title">工作经历</span></h2>
-                <hr>
-                <ul class="experience-list">
-                    <li>
-                        <h3>暂无</h3>
-                        <p>正在修炼中
-                        </p>
-                    </li>
-                    <li>
-                        <h3>暂无</h3>
-                        <p>正在修炼中
-                        </p>
-                    </li>
-                </ul class="experience-list">
-            </div>
-            <div class="project info-unit right-list">
-                <h2 class="info-header"><i class="iconfont icon-project"></i> <span class="info-title">个人项目</span></h2>
-                <hr>
-                <ul class="experience-list">
-                    <li>
-                        <h3>暂无</h3>
-                        <p>
-                            正在修炼中
-                            <br/>
-                        </p>
-                    </li>
-                    <li>
-                        <h3>暂无</h3>
-                        <p>
-                            正在修炼中
-                        </p>
-                    </li>
-                    <li>
-                        <h3>暂无</h3>
-                        <p>
-                            正在修炼中
-                        </p>
-                    </li>
-                    <li>
-                        <h3>暂无</h3>
-                        <p>
-                        正在修炼中
-                        </p>
-                    </li>
-                </ul>
-            </div>
-            <div class="trophy info-unit">
-                <h2 class="info-header"><i class="iconfont icon-trophy"></i> <span class="info-title">奖项与证书</span></h2>
-                <hr>
-                <ul class="experience-list">
-                    <li>
-                        <h3>小学生作文二等奖</h3>
-                        <p>
-                            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam。
-                        </p>
-                    </li> 
-                    <li>
-                        <h3>曾获统一冰红茶“再来一瓶”奖</h3>
-                        <p>
-                            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam。
-                        </p>
-                    </li> 
-                    <li>
-                        <h3>这一行也是为了凑版面</h3>
-                        <p>
-                            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam。
-                        </p>
-                    </li>                     
-            </div>
-            <div class="aboutme info-unit right-paragraph">
-                <h2 class="info-header"><i class="iconfont icon-flower"></i> <span class="info-title">自我评价</span></h2>
-                <hr>
-                <p>
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-                </p>
-            </div>
-        </div>
+      </div>
+      <button id="theme-settings-btn" class="button button-outline">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        <span class="button-text">设置</span>
+      </button>
+      <button id="reset-all-data" class="button button-outline button-destructive">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+        <span class="button-text">重置</span>
+      </button>
+      <button id="exportButton" class="button">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+        <span class="button-text">导出PDF</span>
+      </button>
     </div>
-</body>
+  </div>
 
+  <div class="main-container">
+    <div class="edit-area" id="edit-area">
+      <!-- 模块管理器 -->
+      <div class="module-manager">
+        <div class="module-manager-title">
+          <span>模块管理</span>
+          <div class="add-module-dropdown">
+            <button id="add-module-btn" class="button button-outline">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              添加模块
+            </button>
+            <div id="module-dropdown" class="dropdown-content">
+              <a class="dropdown-item" data-module="personalInfo">个人信息</a>
+              <a class="dropdown-item" data-module="education">教育经历</a>
+              <a class="dropdown-item" data-module="experience">工作经验</a>
+              <a class="dropdown-item" data-module="skills">技能</a>
+              <a class="dropdown-item" data-module="projects">项目经验</a>
+              <a class="dropdown-item" data-module="custom">自定义模块</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 自定义模块表单 - 默认隐藏 -->
+      <div id="custom-module-form" class="custom-module-form" style="display: none;">
+        <h3>添加自定义模块</h3>
+        <div class="form-group">
+          <label for="custom-module-title">模块标题</label>
+          <input type="text" id="custom-module-title" placeholder="输入模块标题">
+        </div>
+        <div class="form-tabs">
+          <button class="form-tab active" data-tab="basic">基本设置</button>
+          <button class="form-tab" data-tab="layout">布局设置</button>
+          <button class="form-tab" data-tab="style">样式设置</button>
+        </div>
+        <div class="form-tab-content active" data-tab="basic">
+          <div class="form-group">
+            <label for="custom-module-content">模块内容</label>
+            <textarea id="custom-module-content" rows="4" placeholder="输入模块内容"></textarea>
+          </div>
+          <div class="form-group">
+            <button id="add-custom-item-btn" class="button button-outline button-sm">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              添加子项
+            </button>
+          </div>
+          <div id="custom-items-container">
+            <!-- 子项将在这里动态添加 -->
+          </div>
+        </div>
+        <div class="form-tab-content" data-tab="layout">
+          <div class="form-group">
+            <label for="custom-layout-type">布局类型</label>
+            <select id="custom-layout-type">
+              <option value="list">列表布局</option>
+              <option value="grid">网格布局</option>
+              <option value="columns">双列布局</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="custom-spacing">间距</label>
+            <select id="custom-spacing">
+              <option value="compact">紧凑</option>
+              <option value="normal" selected>正常</option>
+              <option value="relaxed">宽松</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-tab-content" data-tab="style">
+          <div class="form-group">
+            <label for="custom-text-align">文本对齐</label>
+            <select id="custom-text-align">
+              <option value="left">左对齐</option>
+              <option value="center">居中</option>
+              <option value="right">右对齐</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="custom-text-style">文本样式</label>
+            <select id="custom-text-style">
+              <option value="normal">正常</option>
+              <option value="italic">斜体</option>
+              <option value="bold">粗体</option>
+              <option value="bold-italic">粗斜体</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="custom-accent-color">强调颜色</label>
+            <input type="color" id="custom-accent-color" value="#3b82f6">
+          </div>
+        </div>
+        <div class="button-group">
+          <button id="custom-module-cancel" class="button button-outline">取消</button>
+          <button id="custom-module-save" class="button">保存</button>
+        </div>
+      </div>
+      
+      <div class="card">
+        <div class="accordion" id="resume-modules">
+          <!-- 模块将通过JS动态添加 -->
+        </div>
+      </div>
+    </div>
+    
+    <div class="preview-area" id="preview-area">
+      <div class="preview-container">
+        <div id="resume-preview" class="resume-paper">
+          <!-- 简历预览内容将通过JS动态生成 -->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 主题设置模态框 -->
+<!-- <div id="theme-settings-modal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>主题设置</h2>
+      <button class="modal-close">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label for="heading-font">标题字体</label>
+        <select id="heading-font" class="font-select">
+          <option value="Inter">Inter</option>
+          <option value="Roboto">Roboto</option>
+          <option value="Playfair Display">Playfair Display</option>
+          <option value="Montserrat">Montserrat</option>
+          <option value="Lora">Lora</option>
+          <option value="Merriweather">Merriweather</option>
+          <option value="Poppins">Poppins</option>
+          <option value="Source Sans Pro">Source Sans Pro</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="body-font">正文字体</label>
+        <select id="body-font" class="font-select">
+          <option value="Inter">Inter</option>
+          <option value="Roboto">Roboto</option>
+          <option value="Playfair Display">Playfair Display</option>
+          <option value="Montserrat">Montserrat</option>
+          <option value="Lora">Lora</option>
+          <option value="Merriweather">Merriweather</option>
+          <option value="Poppins">Poppins</option>
+          <option value="Source Sans Pro">Source Sans Pro</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="primary-color">主要颜色</label>
+        <div class="color-picker-wrapper">
+          <input type="color" id="primary-color" value="#3b82f6">
+          <span id="primary-color-preview">#3b82f6</span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="accent-color">强调颜色</label>
+        <div class="color-picker-wrapper">
+          <input type="color" id="accent-color" value="#3b82f6">
+          <span id="accent-color-preview">#3b82f6</span>
+        </div>
+      </div>
+      <div class="button-group">
+        <button id="theme-settings-cancel" class="button button-outline">取消</button>
+        <button id="theme-settings-save" class="button">保存</button>
+      </div>
+    </div>
+  </div>
+</div> -->
+
+<!-- 主题设置模态框 -->
+<div id="theme-settings-modal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>主题设置</h2>
+      <button class="modal-close">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="tabs">
+        <button class="tab-button active" data-tab="theme-select-tab">选择主题</button>
+        <button class="tab-button" data-tab="theme-customize-tab">自定义主题</button>
+        <button class="tab-button" data-tab="theme-manage-tab">主题管理</button>
+      </div>
+      
+      <!-- 主题选择选项卡 -->
+      <div class="tab-content active" id="theme-select-tab">
+        <div class="theme-grid">
+          <div class="theme-card" data-theme="default">
+            <div class="theme-preview default-theme"></div>
+            <div class="theme-name">默认主题</div>
+          </div>
+          <div class="theme-card" data-theme="modern">
+            <div class="theme-preview modern-theme"></div>
+            <div class="theme-name">现代简约</div>
+          </div>
+          <div class="theme-card" data-theme="elegant">
+            <div class="theme-preview elegant-theme"></div>
+            <div class="theme-name">优雅专业</div>
+          </div>
+          <div class="theme-card" data-theme="creative">
+            <div class="theme-preview creative-theme"></div>
+            <div class="theme-name">创意设计</div>
+          </div>
+          <div class="theme-card" data-theme="minimal">
+            <div class="theme-preview minimal-theme"></div>
+            <div class="theme-name">极简风格</div>
+          </div>
+          <div class="theme-card" data-theme="corporate">
+            <div class="theme-preview corporate-theme"></div>
+            <div class="theme-name">企业商务</div>
+          </div>
+          <div class="theme-card" data-theme="bold">
+            <div class="theme-preview bold-theme"></div>
+            <div class="theme-name">大胆时尚</div>
+          </div>
+          <div class="theme-card" data-theme="classic">
+            <div class="theme-preview classic-theme"></div>
+            <div class="theme-name">经典传统</div>
+          </div>
+          <!-- 自定义主题卡片将在这里动态添加 -->
+        </div>
+      </div>
+      
+      <!-- 自定义主题选项卡 -->
+      <div class="tab-content" id="theme-customize-tab">
+        <div class="form-group">
+          <label for="theme-name">主题名称</label>
+          <input type="text" id="theme-name" placeholder="输入自定义主题名称">
+        </div>
+        
+        <div class="form-group">
+          <label>字体设置</label>
+          <div class="form-grid">
+            <div>
+              <label for="heading-font">标题字体</label>
+              <select id="heading-font">
+                <option value="Inter">Inter</option>
+                <option value="Roboto">Roboto</option>
+                <option value="Playfair Display">Playfair Display</option>
+                <option value="Montserrat">Montserrat</option>
+                <option value="Lora">Lora</option>
+                <option value="Merriweather">Merriweather</option>
+                <option value="Poppins">Poppins</option>
+                <option value="Source Sans Pro">Source Sans Pro</option>
+              </select>
+            </div>
+            <div>
+              <label for="body-font">正文字体</label>
+              <select id="body-font">
+                <option value="Inter">Inter</option>
+                <option value="Roboto">Roboto</option>
+                <option value="Playfair Display">Playfair Display</option>
+                <option value="Montserrat">Montserrat</option>
+                <option value="Lora">Lora</option>
+                <option value="Merriweather">Merriweather</option>
+                <option value="Poppins">Poppins</option>
+                <option value="Source Sans Pro">Source Sans Pro</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label>颜色设置</label>
+          <div class="form-grid">
+            <div>
+              <label for="primary-color">主要颜色</label>
+              <div class="color-picker-wrapper">
+                <input type="color" id="primary-color" value="#3b82f6">
+                <span id="primary-color-preview">#3b82f6</span>
+              </div>
+            </div>
+            <div>
+              <label for="accent-color">强调颜色</label>
+              <div class="color-picker-wrapper">
+                <input type="color" id="accent-color" value="#3b82f6">
+                <span id="accent-color-preview">#3b82f6</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label>样式设置</label>
+          <div class="style-options">
+            <div class="style-option">
+              <label for="section-style">章节样式</label>
+              <select id="section-style">
+                <option value="default">默认样式</option>
+                <option value="bordered">带边框</option>
+                <option value="underlined">下划线</option>
+                <option value="accent-left">左侧强调</option>
+                <option value="centered">居中标题</option>
+              </select>
+            </div>
+            <div class="style-option">
+              <label for="skill-style">技能样式</label>
+              <select id="skill-style">
+                <option value="default">默认进度条</option>
+                <option value="thin">细进度条</option>
+                <option value="gradient">渐变进度条</option>
+                <option value="bordered">带边框</option>
+                <option value="minimal">极简线条</option>
+              </select>
+            </div>
+            <div class="style-option">
+              <label for="date-style">日期样式</label>
+              <select id="date-style">
+                <option value="default">默认样式</option>
+                <option value="bold">粗体</option>
+                <option value="italic">斜体</option>
+                <option value="badge">徽章样式</option>
+                <option value="uppercase">大写字母</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 主题管理选项卡 -->
+      <div class="tab-content" id="theme-manage-tab">
+        <div class="custom-themes-list">
+          <!-- 自定义主题列表将在这里动态添加 -->
+          <div class="empty-state">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+            <h3 class="empty-state-title">没有自定义主题</h3>
+            <p class="empty-state-description">在"自定义主题"选项卡中创建您的第一个主题</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <div class="modal-actions-left">
+        <button id="theme-settings-reset" class="button button-outline">重置为默认</button>
+      </div>
+      <div class="modal-actions">
+        <button id="theme-settings-cancel" class="button button-outline">取消</button>
+        <button id="theme-settings-save" class="button">保存设置</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 模板 -->
+<template id="module-template">
+  <div class="accordion-item" draggable="true">
+    <div class="accordion-trigger">
+      <div class="accordion-trigger-content">
+        <div class="drag-handle">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+        </div>
+        <span class="module-title">模块标题</span>
+      </div>
+      <div style="display: flex; align-items: center;">
+        <button class="button-icon remove-module">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+        </button>
+        <svg class="chevron" viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+      </div>
+    </div>
+    <div class="accordion-content">
+      <!-- 模块内容将根据类型动态添加 -->
+    </div>
+  </div>
+</template>
+
+<template id="personal-info-content">
+  <div class="form-grid">
+    <div class="form-group">
+      <label>姓名</label>
+      <input type="text" class="name" placeholder="输入姓名">
+    </div>
+    <div class="form-group">
+      <label>职位</label>
+      <input type="text" class="title" placeholder="输入职位">
+    </div>
+    <div class="form-group">
+      <label>邮箱</label>
+      <input type="email" class="email" placeholder="输入邮箱">
+    </div>
+    <div class="form-group">
+      <label>电话</label>
+      <input type="text" class="phone" placeholder="输入电话">
+    </div>
+    <div class="form-group">
+      <label>所在地</label>
+      <input type="text" class="location" placeholder="输入所在地">
+    </div>
+    <div class="form-group">
+      <label>网站</label>
+      <input type="text" class="website" placeholder="输入网站">
+    </div>
+  </div>
+  <div class="form-group">
+    <label>个人简介</label>
+    <textarea class="summary" placeholder="输入个人简介" rows="4"></textarea>
+  </div>
+</template>
+
+<template id="education-container">
+  <div id="education-items">
+    <!-- 教育经历项目将通过JS动态添加 -->
+  </div>
+  <button class="button button-outline button-full add-education">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+    添加教育经历
+  </button>
+</template>
+
+<template id="experience-container">
+  <div id="experience-items">
+    <!-- 工作经验项目将通过JS动态添加 -->
+  </div>
+  <button class="button button-outline button-full add-experience">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+    添加工作经验
+  </button>
+</template>
+
+<template id="skills-container">
+  <div id="skills-items">
+    <!-- 技能项目将通过JS动态添加 -->
+  </div>
+  <button class="button button-outline button-full add-skill">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+    添加技能
+  </button>
+</template>
+
+<template id="projects-container">
+  <div id="projects-items">
+    <!-- 项目经验项目将通过JS动态添加 -->
+  </div>
+  <button class="button button-outline button-full add-project">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+    添加项目经验
+  </button>
+</template>
+
+<template id="custom-container">
+  <div class="custom-module-editor">
+    <div class="custom-module-content">
+      <!-- 自定义模块内容将在这里显示 -->
+    </div>
+  </div>
+</template>
+
+<template id="custom-item-template">
+  <div class="custom-item">
+    <div class="custom-item-header">
+      <input type="text" class="custom-item-title" placeholder="子项标题">
+      <button class="button-icon remove-custom-item">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+      </button>
+    </div>
+    <textarea class="custom-item-content" placeholder="子项内容" rows="3"></textarea>
+  </div>
+</template>
+
+<template id="education-template">
+  <div class="card-item education-item">
+    <div class="card-header">
+      <h3 class="card-title">教育经历</h3>
+      <button class="button-icon remove-item">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+      </button>
+    </div>
+    <div class="card-content">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>学校</label>
+          <input type="text" class="school" placeholder="输入学校名称">
+        </div>
+        <div class="form-group">
+          <label>学位</label>
+          <input type="text" class="degree" placeholder="输入学位">
+        </div>
+        <div class="form-group">
+          <label>专业</label>
+          <input type="text" class="field" placeholder="输入专业">
+        </div>
+        <div class="form-group date-group">
+          <div>
+            <label>开始日期</label>
+            <input type="text" class="startDate" placeholder="YYYY-MM">
+          </div>
+          <div>
+            <label>结束日期</label>
+            <input type="text" class="endDate" placeholder="YYYY-MM">
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>描述</label>
+        <textarea class="description" placeholder="输入描述" rows="3"></textarea>
+      </div>
+    </div>
+  </div>
+</template>
+
+<template id="experience-template">
+  <div class="card-item experience-item">
+    <div class="card-header">
+      <h3 class="card-title">工作经验</h3>
+      <button class="button-icon remove-item">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+      </button>
+    </div>
+    <div class="card-content">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>公司</label>
+          <input type="text" class="company" placeholder="输入公司名称">
+        </div>
+        <div class="form-group">
+          <label>职位</label>
+          <input type="text" class="position" placeholder="输入职位">
+        </div>
+        <div class="form-group date-group">
+          <div>
+            <label>开始日期</label>
+            <input type="text" class="startDate" placeholder="YYYY-MM">
+          </div>
+          <div>
+            <label>结束日期</label>
+            <input type="text" class="endDate" placeholder="YYYY-MM">
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>描述</label>
+        <textarea class="description" placeholder="输入工作描述" rows="3"></textarea>
+      </div>
+    </div>
+  </div>
+</template>
+
+<template id="skill-template">
+  <div class="skill-item">
+    <div class="skill-input">
+      <input type="text" class="skill-name" placeholder="技能名称">
+    </div>
+    <div class="skill-level-container">
+      <input type="range" class="skill-level" min="0" max="100" step="5" value="50">
+      <span class="skill-percentage">50%</span>
+    </div>
+    <button class="button-icon remove-item">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+    </button>
+  </div>
+</template>
+
+<template id="project-template">
+  <div class="card-item project-item">
+    <div class="card-header">
+      <h3 class="card-title">项目经验</h3>
+      <button class="button-icon remove-item">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+      </button>
+    </div>
+    <div class="card-content">
+      <div class="form-group">
+        <label>项目名称</label>
+        <input type="text" class="name" placeholder="输入项目名称">
+      </div>
+      <div class="form-group">
+        <label>项目描述</label>
+        <textarea class="description" placeholder="输入项目描述" rows="3"></textarea>
+      </div>
+      <div class="form-group">
+        <label>项目链接</label>
+        <input type="text" class="link" placeholder="输入项目链接">
+      </div>
+    </div>
+  </div>
+</template>
+
+<script src="script.js"></script>
+</body>
 </html>
+
