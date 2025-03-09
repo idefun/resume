@@ -99,7 +99,22 @@ document.addEventListener("DOMContentLoaded", () => {
     primary: "#3b82f6",
     accent: "#3b82f6",
   }
+  // 加载样式设置
+  const themeStyles = JSON.parse(localStorage.getItem("resumeStyles")) || {
+    sectionStyle: "underline",
+    skillStyle: "bar",
+    dateStyle: "simple",
+  }
+  // 在页面加载时应用样式设置
+  document.addEventListener("DOMContentLoaded", () => {
+    // 其他初始化代码...
 
+    // 应用主题和字体
+    applyThemeAndFonts()
+
+    // 应用样式设置
+    applyThemeStyles(themeStyles)
+  })
   // 模块标题映射
   const moduleNames = {
     personalInfo: "个人信息",
@@ -109,8 +124,35 @@ document.addEventListener("DOMContentLoaded", () => {
     projects: "项目经验",
   }
 
+  // 更新导航栏主题选择下拉框中的自定义主题选项
+  function updateThemeSelectOptions() {
+    const themeSelect = document.getElementById("theme-select")
+    
+    // 移除所有自定义主题选项
+    const customOptions = themeSelect.querySelectorAll("option[data-custom='true']")
+    customOptions.forEach(option => option.remove())
+    
+    // 添加自定义主题选项
+    customThemes.forEach(theme => {
+      const option = document.createElement("option")
+      option.value = theme.id
+      option.textContent = theme.name
+      option.dataset.custom = "true"
+      themeSelect.appendChild(option)
+    })
+    
+    // 设置当前选中的主题
+    themeSelect.value = currentTheme
+  }
+  
+  // 自定义主题存储
+  let customThemes = JSON.parse(localStorage.getItem("customThemes")) || []
+  
   // 应用保存的主题和字体 - 确保在 resumeData 初始化后调用
   applyThemeAndFonts()
+  
+  // 初始化导航栏主题选择下拉框中的自定义主题选项
+  updateThemeSelectOptions()
 
   // 视图切换（移动端）
   const toggleViewBtn = document.getElementById("toggle-view-btn")
@@ -127,24 +169,79 @@ document.addEventListener("DOMContentLoaded", () => {
   const themeSettingsModal = document.getElementById("theme-settings-modal")
   const themeSettingsCancel = document.getElementById("theme-settings-cancel")
   const themeSettingsSave = document.getElementById("theme-settings-save")
+  const themeSettingsReset = document.getElementById("theme-settings-reset")
   const modalClose = document.querySelector(".modal-close")
 
   // 初始化主题设置表单
-  document.getElementById("theme-select").value = currentTheme
-  document.getElementById("heading-font").value = customFonts.heading
-  document.getElementById("body-font").value = customFonts.body
-  document.getElementById("primary-color").value = customColors.primary
-  document.getElementById("accent-color").value = customColors.accent
+  function initThemeSettings() {
+    document.getElementById("theme-select").value = currentTheme
+    document.getElementById("heading-font").value = customFonts.heading
+    document.getElementById("body-font").value = customFonts.body
+    document.getElementById("primary-color").value = customColors.primary
+    document.getElementById("accent-color").value = customColors.accent
 
-  // 主题选择框事件监听
+    // 初始化主题卡片
+    updateThemeCards()
+
+    // 初始化选项卡
+    initTabs()
+  }
+
+  // 初始化选项卡功能
+  function initTabs() {
+    const tabButtons = document.querySelectorAll(".tab-button")
+    const tabContents = document.querySelectorAll(".tab-content")
+
+    tabButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        const tabId = button.dataset.tab
+
+        // 移除所有活动状态
+        tabButtons.forEach((btn) => btn.classList.remove("active"))
+        tabContents.forEach((content) => content.classList.remove("active"))
+
+        // 设置当前选项卡为活动状态
+        button.classList.add("active")
+        document.getElementById(tabId).classList.add("active")
+      })
+    })
+  }
+
   document.getElementById("theme-select").addEventListener("change", (e) => {
-    currentTheme = e.target.value
-    localStorage.setItem("resumeTheme", currentTheme)
-    applyThemeAndFonts()
+    const selectedTheme = e.target.value
+    currentTheme = selectedTheme
+    
+    // 查找是否是自定义主题
+    const customTheme = customThemes.find(theme => theme.id === selectedTheme)
+    
+    if (customTheme) {
+      // 应用自定义主题
+      applyCustomTheme(customTheme)
+    } else {
+      // 重置为内置主题
+      customFonts = {
+        heading: "Inter",
+        body: "Inter",
+      }
+      customColors = {
+        primary: "#3b82f6",
+        accent: "#3b82f6",
+      }
+      
+      // 应用主题
+      applyThemeAndFonts()
+      
+      // 保存设置
+      localStorage.setItem("resumeTheme", currentTheme)
+      localStorage.setItem("resumeFonts", JSON.stringify(customFonts))
+      localStorage.setItem("resumeColors", JSON.stringify(customColors))
+    }
   })
 
   // 打开主题设置
   themeSettingsBtn.addEventListener("click", () => {
+    // 初始化主题设置
+    initThemeSettings()
     themeSettingsModal.classList.add("show")
   })
 
@@ -156,28 +253,438 @@ document.addEventListener("DOMContentLoaded", () => {
   themeSettingsCancel.addEventListener("click", closeThemeModal)
   modalClose.addEventListener("click", closeThemeModal)
 
-  // 保存主题设置
-  themeSettingsSave.addEventListener("click", () => {
-    const newTheme = document.getElementById("theme-select").value
-    const headingFont = document.getElementById("heading-font").value
-    const bodyFont = document.getElementById("body-font").value
-    const primaryColor = document.getElementById("primary-color").value
-    const accentColor = document.getElementById("accent-color").value
+  // 更新主题卡片
+  function updateThemeCards() {
+    const themeGrid = document.querySelector(".theme-grid")
+    const builtInThemes = ["default", "modern", "elegant", "creative", "minimal", "corporate", "bold", "classic"]
 
+    // 移除所有自定义主题卡片
+    const customCards = themeGrid.querySelectorAll(".theme-card.custom-theme")
+    customCards.forEach((card) => card.remove())
+
+    // 设置当前主题卡片的活动状态
+    const allCards = themeGrid.querySelectorAll(".theme-card")
+    allCards.forEach((card) => {
+      if (card.dataset.theme === currentTheme) {
+        card.classList.add("active")
+      } else {
+        card.classList.remove("active")
+      }
+    })
+
+    // 添加自定义主题卡片
+    customThemes.forEach((theme) => {
+      const card = document.createElement("div")
+      card.className = "theme-card custom-theme"
+      card.dataset.theme = theme.id
+
+      const preview = document.createElement("div")
+      preview.className = "theme-preview"
+      preview.style.backgroundColor = theme.colors.primary
+
+      const name = document.createElement("div")
+      name.className = "theme-name"
+      name.textContent = theme.name
+
+      // 添加操作按钮容器
+      const actions = document.createElement("div")
+      actions.className = "theme-card-actions"
+
+      // 添加编辑按钮
+      const editBtn = document.createElement("button")
+      editBtn.className = "theme-card-btn theme-edit-btn"
+      editBtn.innerHTML =
+        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>'
+      editBtn.addEventListener("click", (e) => {
+        e.stopPropagation() // 防止触发卡片点击事件
+        editCustomTheme(theme)
+      })
+
+      // 添加删除按钮
+      const deleteBtn = document.createElement("button")
+      deleteBtn.className = "theme-card-btn theme-delete-btn"
+      deleteBtn.innerHTML =
+        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>'
+      deleteBtn.addEventListener("click", (e) => {
+        e.stopPropagation() // 防止触发卡片点击事件
+        if (confirm(`确定要删除主题 "${theme.name}" 吗？`)) {
+          deleteCustomTheme(theme.id)
+        }
+      })
+
+      actions.appendChild(editBtn)
+      actions.appendChild(deleteBtn)
+
+      card.appendChild(preview)
+      card.appendChild(name)
+      card.appendChild(actions)
+
+      // 点击事件
+      card.addEventListener("click", () => {
+        // 只在模态框内部更新选中状态，不立即应用主题
+        // 更新活动状态
+        allCards.forEach((c) => c.classList.remove("active"))
+        card.classList.add("active")
+        
+        // 记录当前选中的主题ID，但不立即应用
+        currentTheme = theme.id
+      })
+
+      themeGrid.appendChild(card)
+    })
+
+    // 为内置主题添加点击事件和占位按钮（不可编辑/删除）
+    builtInThemes.forEach((themeId) => {
+      const card = themeGrid.querySelector(`.theme-card[data-theme="${themeId}"]`)
+      if (card) {
+        // 添加占位按钮容器（不可操作）
+        if (!card.querySelector(".theme-card-actions")) {
+          const actions = document.createElement("div")
+          actions.className = "theme-card-actions"
+
+          // 添加禁用的占位按钮
+          const disabledEditBtn = document.createElement("button")
+          disabledEditBtn.className = "theme-card-btn theme-edit-btn disabled"
+          disabledEditBtn.disabled = true
+          disabledEditBtn.innerHTML =
+            '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>'
+
+          const disabledDeleteBtn = document.createElement("button")
+          disabledDeleteBtn.className = "theme-card-btn theme-delete-btn disabled"
+          disabledDeleteBtn.disabled = true
+          disabledDeleteBtn.innerHTML =
+            '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>'
+
+          actions.appendChild(disabledEditBtn)
+          actions.appendChild(disabledDeleteBtn)
+          card.appendChild(actions)
+        }
+
+        card.addEventListener("click", () => {
+          // 只在模态框内部更新选中状态，不立即应用主题
+          // 更新活动状态
+          allCards.forEach((c) => c.classList.remove("active"))
+          card.classList.add("active")
+          
+          // 记录当前选中的主题ID，但不立即应用
+          currentTheme = themeId
+
+          // 重置为内置主题的表单值
+          customFonts = {
+            heading: "Inter",
+            body: "Inter",
+          }
+          customColors = {
+            primary: "#3b82f6",
+            accent: "#3b82f6",
+          }
+
+          // 更新表单
+          document.getElementById("heading-font").value = customFonts.heading
+          document.getElementById("body-font").value = customFonts.body
+          document.getElementById("primary-color").value = customColors.primary
+          document.getElementById("accent-color").value = customColors.accent
+          document.getElementById("primary-color-preview").textContent = customColors.primary
+          document.getElementById("accent-color-preview").textContent = customColors.accent
+        })
+      }
+    })
+  }
+
+  // 编辑自定义主题
+  function editCustomTheme(theme) {
+    // 切换到自定义主题选项卡
+    document.querySelector('.tab-button[data-tab="theme-customize-tab"]').click()
+
+    // 填充表单
+    document.getElementById("theme-name").value = theme.name
+    document.getElementById("heading-font").value = theme.fonts.heading
+    document.getElementById("body-font").value = theme.fonts.body
+    document.getElementById("primary-color").value = theme.colors.primary
+    document.getElementById("accent-color").value = theme.colors.accent
+    document.getElementById("primary-color-preview").textContent = theme.colors.primary
+    document.getElementById("accent-color-preview").textContent = theme.colors.accent
+
+    // 填充样式设置
+    if (theme.styles) {
+      if (theme.styles.sectionStyle) {
+        document.getElementById("section-style").value = theme.styles.sectionStyle
+      }
+      if (theme.styles.skillStyle) {
+        document.getElementById("skill-style").value = theme.styles.skillStyle
+      }
+      if (theme.styles.dateStyle) {
+        document.getElementById("date-style").value = theme.styles.dateStyle
+      }
+    }
+
+    // 设置编辑模式标记
+    document.getElementById("theme-customize-tab").dataset.editMode = "true"
+    document.getElementById("theme-customize-tab").dataset.editThemeId = theme.id
+
+    // 更改保存按钮文本
+    document.getElementById("theme-settings-save").textContent = "更新主题"
+  }
+
+
+  // 应用自定义主题
+  function applyCustomTheme(theme) {
+    // 更新当前主题
+    currentTheme = theme.id
+
+    // 更新字体和颜色
+    customFonts = {
+      heading: theme.fonts.heading,
+      body: theme.fonts.body,
+    }
+
+    customColors = {
+      primary: theme.colors.primary,
+      accent: theme.colors.accent,
+    }
+
+    // 更新表单
+    document.getElementById("heading-font").value = customFonts.heading
+    document.getElementById("body-font").value = customFonts.body
+    document.getElementById("primary-color").value = customColors.primary
+    document.getElementById("accent-color").value = customColors.accent
+
+    // 更新颜色预览文本
+    const primaryPreview = document.getElementById("primary-color-preview")
+    const accentPreview = document.getElementById("accent-color-preview")
+    if (primaryPreview) primaryPreview.textContent = customColors.primary
+    if (accentPreview) accentPreview.textContent = customColors.accent
+
+    // 更新样式选择器（如果存在）
+    if (theme.styles) {
+      const sectionStyleSelect = document.getElementById("section-style")
+      const skillStyleSelect = document.getElementById("skill-style")
+      const dateStyleSelect = document.getElementById("date-style")
+
+      if (sectionStyleSelect && theme.styles.sectionStyle) {
+        sectionStyleSelect.value = theme.styles.sectionStyle
+        document.documentElement.style.setProperty("--section-style", theme.styles.sectionStyle)
+      }
+
+      if (skillStyleSelect && theme.styles.skillStyle) {
+        skillStyleSelect.value = theme.styles.skillStyle
+        document.documentElement.style.setProperty("--skill-style", theme.styles.skillStyle)
+      }
+
+      if (dateStyleSelect && theme.styles.dateStyle) {
+        dateStyleSelect.value = theme.styles.dateStyle
+        document.documentElement.style.setProperty("--date-style", theme.styles.dateStyle)
+      }
+    }
+    // 应用主题
+    applyThemeAndFonts()
+    // 应用额外的样式设置
+    applyThemeStyles(theme.styles || {})
     // 保存设置
-    currentTheme = newTheme
-    customFonts = { heading: headingFont, body: bodyFont }
-    customColors = { primary: primaryColor, accent: accentColor }
-
     localStorage.setItem("resumeTheme", currentTheme)
     localStorage.setItem("resumeFonts", JSON.stringify(customFonts))
     localStorage.setItem("resumeColors", JSON.stringify(customColors))
+  }
+  // 添加新函数：应用主题样式设置
+  function applyThemeStyles(styles) {
+    // 应用章节样式
+    if (styles.sectionStyle) {
+      document.documentElement.style.setProperty("--section-style", styles.sectionStyle)
 
-    // 应用设置
-    applyThemeAndFonts()
+      // 根据不同的章节样式应用特定的CSS类
+      document.body.classList.remove("section-underline", "section-boxed", "section-simple")
+      document.body.classList.add(`section-${styles.sectionStyle}`)
+    }
 
-    // 关闭模态框
-    closeThemeModal()
+    // 应用技能样式
+    if (styles.skillStyle) {
+      document.documentElement.style.setProperty("--skill-style", styles.skillStyle)
+
+      // 根据不同的技能样式应用特定的CSS类
+      document.body.classList.remove("skill-bar", "skill-circle", "skill-simple")
+      document.body.classList.add(`skill-${styles.skillStyle}`)
+    }
+
+    // 应用日期样式
+    if (styles.dateStyle) {
+      document.documentElement.style.setProperty("--date-style", styles.dateStyle)
+
+      // 根据不同的日期样式应用特定的CSS类
+      document.body.classList.remove("date-simple", "date-boxed", "date-modern")
+      document.body.classList.add(`date-${styles.dateStyle}`)
+    }
+  }
+  // 保存自定义主题
+  function saveCustomTheme() {
+    const themeName = document.getElementById("theme-name").value.trim()
+
+    if (!themeName) {
+      alert("请输入主题名称")
+      return false
+    }
+
+    // 检查是否处于编辑模式
+    const customizeTab = document.getElementById("theme-customize-tab")
+    const isEditMode = customizeTab.dataset.editMode === "true"
+    const editThemeId = customizeTab.dataset.editThemeId
+
+    // 创建主题对象
+    const theme = {
+      id: isEditMode ? editThemeId : `custom-${Date.now()}`,
+      name: themeName,
+      fonts: {
+        heading: document.getElementById("heading-font").value,
+        body: document.getElementById("body-font").value,
+      },
+      colors: {
+        primary: document.getElementById("primary-color").value,
+        accent: document.getElementById("accent-color").value,
+      },
+      styles: {
+        sectionStyle: document.getElementById("section-style").value,
+        skillStyle: document.getElementById("skill-style").value,
+        dateStyle: document.getElementById("date-style").value,
+      },
+    }
+
+    if (isEditMode) {
+      // 更新现有主题
+      const index = customThemes.findIndex((t) => t.id === editThemeId)
+      if (index !== -1) {
+        customThemes[index] = theme
+      }
+
+      // 重置编辑模式
+      customizeTab.dataset.editMode = "false"
+      customizeTab.dataset.editThemeId = ""
+
+      // 恢复保存按钮文本
+      document.getElementById("theme-settings-save").textContent = "保存设置"
+    } else {
+      // 添加到自定义主题列表
+      customThemes.push(theme)
+    }
+
+    // 保存到本地存储
+    localStorage.setItem("customThemes", JSON.stringify(customThemes))
+    
+    // 更新UI
+    updateThemeCards()
+    
+    // 更新导航栏的主题选择下拉框
+    updateThemeSelectOptions()
+
+    // 清空表单
+    document.getElementById("theme-name").value = ""
+
+    // 切换到主题管理选项卡
+    document.querySelector('.tab-button[data-tab="theme-select-tab"]').click()
+
+    return true
+  }
+
+  // 删除自定义主题
+  function deleteCustomTheme(themeId) {
+    // 如果当前正在使用这个主题，切换到默认主题
+    if (currentTheme === themeId) {
+      currentTheme = "default"
+      localStorage.setItem("resumeTheme", currentTheme)
+      applyThemeAndFonts()
+    }
+
+    // 从列表中移除
+    customThemes = customThemes.filter((theme) => theme.id !== themeId)
+
+    // 保存到本地存储
+    localStorage.setItem("customThemes", JSON.stringify(customThemes))
+
+    // 更新UI
+    updateThemeCards()
+    // 更新导航栏的主题选择下拉框
+    updateThemeSelectOptions()
+    // updateCustomThemesList()
+  }
+
+  // 保存主题设置
+  themeSettingsSave.addEventListener("click", () => {
+    // 检查当前是否在自定义主题选项卡
+    const activeTab = document.querySelector(".tab-content.active")
+
+    if (activeTab.id === "theme-customize-tab") {
+      // 保存自定义主题
+      if (saveCustomTheme()) {
+        closeThemeModal()
+      }
+    } else {
+      // 保存当前主题设置
+      const headingFont = document.getElementById("heading-font").value
+      const bodyFont = document.getElementById("body-font").value
+      const primaryColor = document.getElementById("primary-color").value
+      const accentColor = document.getElementById("accent-color").value
+      // 获取样式设置（如果存在）
+      const styles = {}
+
+      const sectionStyleSelect = document.getElementById("section-style")
+      const skillStyleSelect = document.getElementById("skill-style")
+      const dateStyleSelect = document.getElementById("date-style")
+
+      if (sectionStyleSelect) {
+        styles.sectionStyle = sectionStyleSelect.value
+      }
+
+      if (skillStyleSelect) {
+        styles.skillStyle = skillStyleSelect.value
+      }
+
+      if (dateStyleSelect) {
+        styles.dateStyle = dateStyleSelect.value
+      }
+      // 保存设置
+      customFonts = { heading: headingFont, body: bodyFont }
+      customColors = { primary: primaryColor, accent: accentColor }
+
+      localStorage.setItem("resumeTheme", currentTheme)
+      localStorage.setItem("resumeFonts", JSON.stringify(customFonts))
+      localStorage.setItem("resumeColors", JSON.stringify(customColors))
+
+      // 保存样式设置
+      localStorage.setItem("resumeStyles", JSON.stringify(styles))
+      // 应用设置
+      applyThemeAndFonts()
+      // 应用样式设置
+      applyThemeStyles(styles)
+      // 更新导航栏的主题选择下拉框
+      document.getElementById("theme-select").value = currentTheme
+      // 关闭模态框
+      closeThemeModal()
+    }
+  })
+
+  // 重置主题设置
+  themeSettingsReset.addEventListener("click", () => {
+    if (confirm("确定要重置主题设置吗？这将恢复默认主题。")) {
+      // 重置为默认主题
+      currentTheme = "default"
+      customFonts = {
+        heading: "Inter",
+        body: "Inter",
+      }
+      customColors = {
+        primary: "#3b82f6",
+        accent: "#3b82f6",
+      }
+
+      // 保存设置
+      localStorage.setItem("resumeTheme", currentTheme)
+      localStorage.setItem("resumeFonts", JSON.stringify(customFonts))
+      localStorage.setItem("resumeColors", JSON.stringify(customColors))
+
+      // 应用设置
+      applyThemeAndFonts()
+
+      // 更新UI
+      initThemeSettings()
+    }
   })
 
   // 在保存主题设置之后，添加重置按钮的逻辑
@@ -212,26 +719,55 @@ document.addEventListener("DOMContentLoaded", () => {
   // 应用主题和字体
   function applyThemeAndFonts() {
     // 移除所有主题相关的类
-    document.body.classList.forEach(className => {
-      if (className.startsWith('theme-')) {
-        document.body.classList.remove(className);
+    document.body.classList.forEach((className) => {
+      if (className.startsWith("theme-")) {
+        document.body.classList.remove(className)
       }
-    });
+    })
 
     // 添加新的主题类
-    if (currentTheme !== 'default') {
-      document.body.classList.add(`theme-${currentTheme}`);
+    if (currentTheme !== "default") {
+      document.body.classList.add(`theme-${currentTheme}`)
     }
 
     // 应用自定义字体
-    document.documentElement.style.setProperty('--resume-heading-font', `"${customFonts.heading}", sans-serif`);
-    document.documentElement.style.setProperty('--resume-body-font', `"${customFonts.body}", sans-serif`);
+    document.documentElement.style.setProperty("--resume-heading-font", `"${customFonts.heading}", sans-serif`)
+    document.documentElement.style.setProperty("--resume-body-font", `"${customFonts.body}", sans-serif`)
 
     // 应用自定义颜色
-    document.documentElement.style.setProperty('--resume-accent', customColors.accent);
-    document.documentElement.style.setProperty('--primary', customColors.primary);
+    document.documentElement.style.setProperty("--resume-accent", customColors.accent)
+    document.documentElement.style.setProperty("--resume-primary", customColors.primary)
+    document.documentElement.style.setProperty("--resume-primary-light", adjustColor(customColors.primary, 40))
+    document.documentElement.style.setProperty("--resume-primary-dark", adjustColor(customColors.primary, -40))
+    // 导出按钮使用固定颜色，不受主题影响
+    document.documentElement.style.setProperty("--primary", "#3b82f6")
   }
+  // 添加一个辅助函数来调整颜色亮度
+  function adjustColor(color, amount) {
+    // 将十六进制颜色转换为RGB
+    let hex = color
+    if (hex.startsWith("#")) {
+      hex = hex.slice(1)
+    }
 
+    // 确保颜色格式正确
+    if (hex.length === 3) {
+      hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2]
+    }
+
+    // 转换为RGB
+    let r = Number.parseInt(hex.slice(0, 2), 16)
+    let g = Number.parseInt(hex.slice(2, 4), 16)
+    let b = Number.parseInt(hex.slice(4, 6), 16)
+
+    // 调整亮度
+    r = Math.max(0, Math.min(255, r + amount))
+    g = Math.max(0, Math.min(255, g + amount))
+    b = Math.max(0, Math.min(255, b + amount))
+
+    // 转回十六进制
+    return `#${r.toString(16).padStart(2, "0")}${g.toString(16).padStart(2, "0")}${b.toString(16).padStart(2, "0")}`
+  }
   // 修改 initializeModules 函数，确保能够正确显示和展开模块
   function initializeModules() {
     const modulesContainer = document.getElementById("resume-modules")
@@ -597,8 +1133,10 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!e.target.classList.contains("accordion-item")) return
 
       // 只有通过拖拽手柄才能拖拽
-      if (!e.target.contains(e.target.querySelector(".drag-handle")) &&
-        !e.target.querySelector(".drag-handle").contains(e.composedPath()[0])) {
+      if (
+        !e.target.contains(e.target.querySelector(".drag-handle")) &&
+        !e.target.querySelector(".drag-handle").contains(e.composedPath()[0])
+      ) {
         e.preventDefault()
         return
       }
@@ -717,7 +1255,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       // 移除所有拖拽相关的类
-      document.querySelectorAll(".accordion-item").forEach(item => {
+      document.querySelectorAll(".accordion-item").forEach((item) => {
         item.classList.remove("drag-hover", "drag-above", "drag-below")
       })
 
@@ -778,9 +1316,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // 根据最后的鼠标位置找到目标元素
       const elementsAtPoint = document.elementsFromPoint(lastClientY, lastClientY)
-      const targetItem = elementsAtPoint.find(el =>
-        el.classList.contains("accordion-item") && el !== draggedItem
-      )
+      const targetItem = elementsAtPoint.find((el) => el.classList.contains("accordion-item") && el !== draggedItem)
 
       if (targetItem) {
         const rect = targetItem.getBoundingClientRect()
@@ -805,14 +1341,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // 为拖拽手柄添加触摸反馈
     const dragHandles = document.querySelectorAll(".drag-handle")
-    dragHandles.forEach(handle => {
+    dragHandles.forEach((handle) => {
       handle.addEventListener("mousedown", () => {
         handle.closest(".accordion-item").classList.add("drag-ready")
       })
     })
 
     document.addEventListener("mouseup", () => {
-      document.querySelectorAll(".drag-ready").forEach(item => {
+      document.querySelectorAll(".drag-ready").forEach((item) => {
         item.classList.remove("drag-ready")
       })
     })
@@ -954,13 +1490,13 @@ document.addEventListener("DOMContentLoaded", () => {
     layoutLabel.textContent = "布局"
 
     const layoutSelect = document.createElement("select")
-      ;["list", "grid", "columns"].forEach((layout) => {
-        const option = document.createElement("option")
-        option.value = layout
-        option.textContent = layout === "list" ? "列表布局" : layout === "grid" ? "网格布局" : "双列布局"
-        option.selected = (customModule.style?.layout || "list") === layout
-        layoutSelect.appendChild(option)
-      })
+    ;["list", "grid", "columns"].forEach((layout) => {
+      const option = document.createElement("option")
+      option.value = layout
+      option.textContent = layout === "list" ? "列表布局" : layout === "grid" ? "网格布局" : "双列布局"
+      option.selected = (customModule.style?.layout || "list") === layout
+      layoutSelect.appendChild(option)
+    })
 
     layoutSelect.addEventListener("change", (e) => {
       if (!customModule.style) customModule.style = {}
@@ -980,13 +1516,13 @@ document.addEventListener("DOMContentLoaded", () => {
     alignLabel.textContent = "文本对齐"
 
     const alignSelect = document.createElement("select")
-      ;["left", "center", "right"].forEach((align) => {
-        const option = document.createElement("option")
-        option.value = align
-        option.textContent = align === "left" ? "左对齐" : align === "center" ? "居中" : "右对齐"
-        option.selected = (customModule.style?.textAlign || "left") === align
-        alignSelect.appendChild(option)
-      })
+    ;["left", "center", "right"].forEach((align) => {
+      const option = document.createElement("option")
+      option.value = align
+      option.textContent = align === "left" ? "左对齐" : align === "center" ? "居中" : "右对齐"
+      option.selected = (customModule.style?.textAlign || "left") === align
+      alignSelect.appendChild(option)
+    })
 
     alignSelect.addEventListener("change", (e) => {
       if (!customModule.style) customModule.style = {}
@@ -1006,14 +1542,14 @@ document.addEventListener("DOMContentLoaded", () => {
     textStyleLabel.textContent = "文本样式"
 
     const textStyleSelect = document.createElement("select")
-      ;["normal", "bold", "italic", "bold-italic"].forEach((style) => {
-        const option = document.createElement("option")
-        option.value = style
-        option.textContent =
-          style === "normal" ? "正常" : style === "bold" ? "粗体" : style === "italic" ? "斜体" : "粗斜体"
-        option.selected = (customModule.style?.textStyle || "normal") === style
-        textStyleSelect.appendChild(option)
-      })
+    ;["normal", "bold", "italic", "bold-italic"].forEach((style) => {
+      const option = document.createElement("option")
+      option.value = style
+      option.textContent =
+        style === "normal" ? "正常" : style === "bold" ? "粗体" : style === "italic" ? "斜体" : "粗斜体"
+      option.selected = (customModule.style?.textStyle || "normal") === style
+      textStyleSelect.appendChild(option)
+    })
 
     textStyleSelect.addEventListener("change", (e) => {
       if (!customModule.style) customModule.style = {}
@@ -1451,53 +1987,58 @@ document.addEventListener("DOMContentLoaded", () => {
             <p class="resume-title">${personalInfo.title}</p>
             
             <div class="resume-contact">
-              ${personalInfo.email
-                ? `
+              ${
+                personalInfo.email
+                  ? `
                 <div class="resume-contact-item">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
                   <span>${personalInfo.email}</span>
                 </div>
               `
-                : ""
+                  : ""
               }
               
-              ${personalInfo.phone
-                ? `
+              ${
+                personalInfo.phone
+                  ? `
                 <div class="resume-contact-item">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
                   <span>${personalInfo.phone}</span>
                 </div>
               `
-                : ""
+                  : ""
               }
               
-              ${personalInfo.location
-                ? `
+              ${
+                personalInfo.location
+                  ? `
                 <div class="resume-contact-item">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
                   <span>${personalInfo.location}</span>
                 </div>
               `
-                : ""
+                  : ""
               }
               
-              ${personalInfo.website
-                ? `
+              ${
+                personalInfo.website
+                  ? `
                 <div class="resume-contact-item">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
                   <span>${personalInfo.website}</span>
                 </div>
               `
-                : ""
+                  : ""
               }
             </div>
             
-            ${personalInfo.summary
+            ${
+              personalInfo.summary
                 ? `
               <p class="resume-summary">${personalInfo.summary}</p>
             `
                 : ""
-              }
+            }
           </div>
         `
             break
@@ -1569,12 +2110,13 @@ document.addEventListener("DOMContentLoaded", () => {
                     (project) => `
                   <div class="resume-item">
                     <h3 class="resume-item-title">${project.name}</h3>
-                    ${project.link
+                    ${
+                      project.link
                         ? `
                       <a href="${project.link}" target="_blank" class="resume-project-link">${project.link}</a>
                     `
                         : ""
-                      }
+                    }
                     <p class="resume-item-description">${project.description}</p>
                   </div>
                 `,
@@ -1629,3 +2171,4 @@ document.addEventListener("DOMContentLoaded", () => {
   // 确保一开始就调用 initializeModules，且末尾再次调用
   initializeModules()
 })
+

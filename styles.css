@@ -977,7 +977,7 @@ select:focus {
 @media print {
   @page {
     size: A4;
-    margin: 0;
+    margin: 1cm;
   }
 
   body {
@@ -985,6 +985,7 @@ select:focus {
     padding: 0;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
+    overflow: visible !important;
   }
 
   .container,
@@ -994,6 +995,7 @@ select:focus {
     margin: 0 !important;
     background: none !important;
     box-shadow: none !important;
+    overflow: visible !important;
   }
 
   .header,
@@ -1005,12 +1007,22 @@ select:focus {
   .preview-area {
     display: block !important;
     width: 100% !important;
+    height: auto !important;
+    overflow: visible !important;
   }
 
   .resume-paper {
     box-shadow: none !important;
     width: 100% !important;
     min-height: auto !important;
+    margin: 0 !important;
+    padding: 1cm !important;
+    overflow: visible !important;
+    page-break-inside: auto !important;
+  }
+
+  .resume-section {
+    page-break-inside: avoid;
   }
 }
 
@@ -1201,15 +1213,15 @@ select:focus {
   .button-text {
     display: none;
   }
-  
+
   .header-buttons {
     gap: 0.75rem;
   }
-  
+
   .header-buttons .button {
     padding: 0.5rem;
   }
-  
+
   .theme-selector {
     display: none;
   }
@@ -1465,8 +1477,6 @@ select:focus {
   box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
 }
 
-
-
 /* 主题设置模态框样式 */
 .tabs {
   display: flex;
@@ -1505,8 +1515,10 @@ select:focus {
   gap: 1rem;
 }
 
+/* 主题卡片样式增强 */
 .theme-card {
-  border: 2px solid transparent;
+  position: relative;
+  border: 2px solid #F1F5F9;
   border-radius: var(--radius);
   overflow: hidden;
   cursor: pointer;
@@ -1535,52 +1547,101 @@ select:focus {
   border-top: 1px solid var(--border);
 }
 
-/* 主题预览样式 */
-.default-theme { background-color: #f8fafc; }
-.modern-theme { background-color: #f1f5f9; }
-.elegant-theme { background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%); }
-.creative-theme { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); }
-.minimal-theme { background-color: #ffffff; border: 1px solid #e5e7eb; }
-.corporate-theme { background-color: #e0f2fe; }
-.bold-theme { background: linear-gradient(135deg, #fecaca 0%, #f87171 100%); }
-.classic-theme { background-color: #f3f4f6; }
-
-/* 自定义主题列表 */
-.custom-themes-list {
-  border: 1px solid var(--border);
+/* 主题卡片操作按钮 */
+.theme-card-actions {
+  position: absolute;
+  top: 0.25rem;
+  right: 0.25rem;
+  display: flex;
+  gap: 0.25rem;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  background-color: rgba(255, 255, 255, 0.8);
   border-radius: var(--radius);
-  overflow: hidden;
+  padding: 0.125rem;
 }
 
-.custom-theme-item {
+.theme-card:hover .theme-card-actions {
+  opacity: 1;
+}
+
+.theme-card-btn {
+  width: 1.75rem;
+  height: 1.75rem;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 0.75rem 1rem;
+  justify-content: center;
+  border: none;
+  background-color: var(--background);
+  border-radius: var(--radius);
+  cursor: pointer;
+  color: var(--muted-foreground);
+  transition: all 0.2s ease;
+}
+
+.theme-card-btn:hover {
+  background-color: var(--muted);
+  color: var(--foreground);
+}
+
+.theme-edit-btn:hover {
+  color: var(--primary);
+}
+
+.theme-delete-btn:hover {
+  color: var(--destructive);
+}
+
+.theme-card-btn.disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.theme-card-btn.disabled:hover {
+  background-color: var(--background);
+  color: var(--muted-foreground);
+}
+
+/* 自定义主题列表样式 */
+.section-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
   border-bottom: 1px solid var(--border);
 }
 
-.custom-theme-item:last-child {
-  border-bottom: none;
+/* 主题预览样式 */
+.default-theme {
+  background-color: #f8fafc;
+}
+.modern-theme {
+  background-color: #f1f5f9;
+}
+.elegant-theme {
+  background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
+}
+.creative-theme {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+}
+.minimal-theme {
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+}
+.corporate-theme {
+  background-color: #e0f2fe;
+}
+.bold-theme {
+  background: linear-gradient(135deg, #fecaca 0%, #f87171 100%);
+}
+.classic-theme {
+  background-color: #f3f4f6;
 }
 
-.custom-theme-name {
-  font-weight: 500;
-}
+/* 自定义主题列表 */
 
-.custom-theme-actions {
-  display: flex;
-  gap: 0.5rem;
-}
 
-.custom-theme-preview {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  display: inline-block;
-  margin-right: 0.5rem;
-  vertical-align: middle;
-}
+
 
 /* 样式选项 */
 .style-options {
@@ -1632,8 +1693,27 @@ select:focus {
   .theme-grid {
     grid-template-columns: repeat(2, 1fr);
   }
-  
+
   .style-options {
     grid-template-columns: 1fr;
   }
 }
+
+
+.drag-placeholder {
+  height: 60px;
+  background: rgba(59, 130, 246, 0.1);
+  border: 2px dashed #3b82f6;
+  border-radius: 4px;
+  margin: 4px 0;
+}
+
+.dragging {
+  position: fixed;
+  z-index: 1000;
+  pointer-events: none;
+  opacity: 0.8;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+
+}
+
